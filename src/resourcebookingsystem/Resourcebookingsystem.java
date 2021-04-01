@@ -118,12 +118,12 @@ public class Resourcebookingsystem {
             cal.add(Calendar.HOUR, length);//adds the length of the meeting to the start time
             String endTime = df.format(cal.getTime()); //creates endTime (= the start time + the length of the meeting)
 
-            Date startdate = format.parse(time);
-            Date enddate = format.parse(endTime);
-            int difference = (int) (enddate.getTime() - startdate.getTime());
+            Date starttime = format.parse(time);
+            Date endtime = format.parse(endTime);
+            int difference = (int) (endtime.getTime() - starttime.getTime());
 
             String extras = userExtras();
-            String[] Refreshments = userRefreshments(startdate, enddate).split(",");
+            String[] Refreshments = userRefreshments(starttime, endtime).split(",");
 
             //checking that their details aren't the same as the others
             boolean endloop = true;
@@ -136,7 +136,7 @@ public class Resourcebookingsystem {
                 if (!bookingList.isEmpty()) {
                     Date date3 = format.parse(bookingList.get(i).getTime());
 
-                    if ((time.equals(bookingList.get(i).getTime())) || ((enddate.after(date3)) && ((startdate.before(enddate))))) {//
+                    if ((time.equals(bookingList.get(i).getTime())) || ((endtime.after(date3)) && ((starttime.before(endtime))))) {//
                         if (room == (bookingList.get(i).getRoom())) {
                             if ((date.equals(bookingList.get(i).getDate()))) {
                                 System.out.println("Sorry, this slot has already been booked. Please edit your informtion entered:");
@@ -257,7 +257,8 @@ public class Resourcebookingsystem {
 
                 System.out.println("What would you like?");
                 input.nextLine();//to prevent skipping lines
-                refreshments = input.next();
+                refreshments = input.nextLine();
+
                 System.out.println("What time would you like them delivered?Please type in a time in the format: xx:xx ");
                 r_time = input.next();
 
@@ -317,100 +318,106 @@ public class Resourcebookingsystem {
 
     public static void editBooking() {
 
-        int index = getIndex();//choose which booking to edit
-        if (index != -1) {
-            try {
-                 
-                
-                System.out.println("Are you changing atleast one of these: room, date, time, length ?");
-                String editq = input.next();
-                if (editq.toLowerCase().equals("yes")) {
-                    int newroom = userRoom();
+        try {
+            int index = getIndex();//choose which booking to editSimpleDateFormat df = new SimpleDateFormat("HH:mm");//date format
+            Date starttime = format.parse(bookingList.get(index).getTime());
+            Date d = format.parse(bookingList.get(index).getTime());
+            cal = Calendar.getInstance();
+            cal.setTime(d);
+            cal.add(Calendar.HOUR, (int) bookingList.get(index).getLength());//adds the length of the meeting to the start time
+            String newendTime = format.format(cal.getTime()); //creates endTime (= the start time + the length of the meeting)
+            Date endtime = format.parse(newendTime);
 
-                    bookingList.get(index).setRoom(newroom);
+            if (index != -1) {
+                try {
 
-                    String newdate = userDate();
+                    System.out.println("Are you changing atleast one of these: room, date, time, length ?");
+                    String editq = input.next();
+                    if (editq.toLowerCase().equals("yes")) {
+                        int newroom = userRoom();
 
-                    bookingList.get(index).setDate(newdate);
+                        bookingList.get(index).setRoom(newroom);
 
-                    String newtime = userTime();
-                    int newlength = userLength();
+                        String newdate = userDate();
 
-                    SimpleDateFormat df = new SimpleDateFormat("HH:mm");//date format
-                    Date d = df.parse(newtime);
-                    cal = Calendar.getInstance();
-                    cal.setTime(d);
-                    cal.add(Calendar.HOUR, newlength);//adds the length of the meeting to the start time
-                    String newendTime = df.format(cal.getTime()); //creates endTime (= the start time + the length of the meeting)
-                    
-                    Date startdate = format.parse(newtime);
-                    Date enddate = format.parse(newendTime);
-                    int difference = (int) (enddate.getTime() - startdate.getTime());
-                     
+                        bookingList.get(index).setDate(newdate);
 
+                        String newtime = userTime();
+                        int newlength = userLength();
 
+                        Date df = format.parse(newtime);
+                        cal = Calendar.getInstance();
+                        cal.setTime(df);
+                        cal.add(Calendar.HOUR, newlength);//adds the length of the meeting to the start time
+                        newendTime = format.format(cal.getTime()); //creates endTime (= the start time + the length of the meeting)
 
-                    boolean endloop = true;
+                        starttime = format.parse(newtime);
+                        endtime = format.parse(newendTime);
+                        int difference = (int) (endtime.getTime() - starttime.getTime());
 
-                    if (!bookingList.isEmpty()) {
-                        endloop = false;
-                    }
+                        boolean endloop = true;
 
-                    int i = 0;
-                    for (int z = 0; (endloop == false); z++) {
                         if (!bookingList.isEmpty()) {
-                            Date bookingListDate = format.parse(bookingList.get(i).getTime());
+                            endloop = false;
+                        }
 
-                            if ((newtime.equals(bookingList.get(i).getTime())) || ((enddate.after(bookingListDate)) && ((startdate.before(enddate))))) {
-                                if (newroom == (bookingList.get(i).getRoom())) {
-                                    if ((newdate.equals(bookingList.get(i).getDate()))) {
-                                        System.out.println("Sorry, this slot has already been booked. Please edit your informtion entered:");
-                                        System.out.println("Please type in what room you want");
+                        int i = 0;
+                        for (int z = 0; (endloop == false); z++) {
+                            if (!bookingList.isEmpty()) {
+                                Date bookingListDate = format.parse(bookingList.get(i).getTime());
 
-                                        newroom = input.nextInt();
-                                        bookingList.get(index).setRoom(newroom);
-                                        System.out.println("Please type in a date in the format: dd/MM/yyyy");
-                                        input.nextLine();//to prevent skipping lines
-                                        newdate = input.nextLine();
-                                        bookingList.get(index).setDate(newdate);
-                                        System.out.println("Please type in a time in the format: xx:xx");
-                                        newtime = input.nextLine();
-                                        bookingList.get(index).setTime(newtime);
+                                if ((newtime.equals(bookingList.get(i).getTime())) || ((endtime.after(bookingListDate)) && ((starttime.before(endtime))))) {
+                                    if (newroom == (bookingList.get(i).getRoom())) {
+                                        if ((newdate.equals(bookingList.get(i).getDate()))) {
+                                            System.out.println("Sorry, this slot has already been booked. Please edit your informtion entered:");
+                                            System.out.println("Please type in what room you want");
+
+                                            newroom = input.nextInt();
+                                            bookingList.get(index).setRoom(newroom);
+                                            System.out.println("Please type in a date in the format: dd/MM/yyyy");
+                                            input.nextLine();//to prevent skipping lines
+                                            newdate = input.nextLine();
+                                            bookingList.get(index).setDate(newdate);
+                                            System.out.println("Please type in a time in the format: xx:xx");
+                                            newtime = input.nextLine();
+                                            bookingList.get(index).setTime(newtime);
+                                        } else {
+                                            endloop = true;
+                                        }
                                     } else {
                                         endloop = true;
                                     }
                                 } else {
                                     endloop = true;
                                 }
-                            } else {
-                                endloop = true;
+
                             }
-
                         }
+                        bookingList.get(index).setTime(newtime);
+                        bookingList.get(index).setLength(newlength);
                     }
-                    bookingList.get(index).setTime(newtime);
-                    bookingList.get(index).setLength(newlength);
-                }
-                String newextras = userExtras();
+                    String newextras = userExtras();
 
-                bookingList.get(index).setExtras(newextras);
+                    bookingList.get(index).setExtras(newextras);
 
-                String[] newRefreshments = userRefreshments(startdate, enddate).split(",");
+                    String[] newRefreshments = userRefreshments(starttime, endtime).split(",");
 
-
-                bookingList.get(index).setRefreshments(newRefreshments[2]);
-                bookingList.get(index).setRefreshments(newRefreshments[0]);
-                bookingList.get(index).setR_time(newRefreshments[1]);
+                    bookingList.get(index).setRefreshments(newRefreshments[2]);
+                    bookingList.get(index).setRefreshments(newRefreshments[0]);
+                    bookingList.get(index).setR_time(newRefreshments[1]);
 
 //                }
-                System.out.println("Done, the booking has been changed to " + bookingList.get(index).toString());
+                    System.out.println("Done, the booking has been changed to " + bookingList.get(index).toString());
 
-            } catch (ParseException ex) {
-                Logger.getLogger(Resourcebookingsystem.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ParseException ex) {
+                    Logger.getLogger(Resourcebookingsystem.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                System.out.println("booking not found");
+
             }
-        } else {
-            System.out.println("booking not found");
-
+        } catch (ParseException ex) {
+            Logger.getLogger(Resourcebookingsystem.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
